@@ -128,3 +128,22 @@ def test_clean_training_set_does_not_mutate_input(flag_value):
     before = df.copy()
     get_clean_training_set(df, _FakeDedup({}), pd.Series({1: flag_value}))
     pd.testing.assert_frame_equal(df, before)
+
+
+def test_dedup_params_default_to_pipeline_constants():
+    from pipeline import dedup
+    params = dedup.DedupParams()
+    assert params.match_threshold == dedup.MATCH_THRESHOLD
+    assert params.max_distance_m == dedup.MAX_DISTANCE_METERS_GATE
+
+
+def test_holdout_split_is_by_area_and_keeps_duplicate_groups_together():
+    import pandas as pd
+    from pipeline.holdout_eval import RAW_PATH, split_by_area
+    df = pd.read_csv(RAW_PATH)
+    tune, hold = split_by_area(df)
+    assert set(tune["area"]).isdisjoint(set(hold["area"]))
+    assert len(tune) + len(hold) == len(df)
+    groups_tune = set(tune["dup_group_truth"].dropna())
+    groups_hold = set(hold["dup_group_truth"].dropna())
+    assert groups_tune.isdisjoint(groups_hold)
