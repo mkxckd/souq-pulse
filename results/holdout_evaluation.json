@@ -1,0 +1,112 @@
+{
+  "split": {
+    "method": "by area, alternating sorted area names",
+    "tune_listings": 1277,
+    "holdout_listings": 1352,
+    "tune_areas": [
+      "Al Furjan",
+      "Business Bay",
+      "Downtown Dubai",
+      "Dubai Silicon Oasis",
+      "Jumeirah Lake Towers",
+      "Mirdif"
+    ],
+    "holdout_areas": [
+      "Arabian Ranches",
+      "Discovery Gardens",
+      "Dubai Marina",
+      "Dubai Sports City",
+      "Jumeirah Village Circle",
+      "Palm Jumeirah"
+    ]
+  },
+  "dedup": {
+    "tuned_params": {
+      "text_weight": 0.45,
+      "price_weight": 0.3,
+      "size_weight": 0.25,
+      "match_threshold": 0.45,
+      "max_distance_m": 200,
+      "min_price_sim": 0.9,
+      "min_size_sim": 0.95
+    },
+    "tune_split": {
+      "true_duplicate_pairs": 198,
+      "predicted_duplicate_pairs": 199,
+      "true_positive_pairs": 194,
+      "false_positive_pairs": 5,
+      "false_negative_pairs": 4,
+      "precision": 0.9749,
+      "recall": 0.9798,
+      "f1": 0.9773,
+      "clusters_found": 142,
+      "runtime_seconds": 0.241,
+      "listings_scored": 1277
+    },
+    "holdout_with_tuned_params": {
+      "true_duplicate_pairs": 220,
+      "predicted_duplicate_pairs": 220,
+      "true_positive_pairs": 217,
+      "false_positive_pairs": 3,
+      "false_negative_pairs": 3,
+      "precision": 0.9864,
+      "recall": 0.9864,
+      "f1": 0.9864,
+      "clusters_found": 164,
+      "runtime_seconds": 0.238,
+      "listings_scored": 1352
+    },
+    "holdout_with_current_params": {
+      "true_duplicate_pairs": 220,
+      "predicted_duplicate_pairs": 227,
+      "true_positive_pairs": 214,
+      "false_positive_pairs": 13,
+      "false_negative_pairs": 6,
+      "precision": 0.9427,
+      "recall": 0.9727,
+      "f1": 0.9575,
+      "clusters_found": 165,
+      "runtime_seconds": 0.23,
+      "listings_scored": 1352
+    }
+  },
+  "fraud": {
+    "tuned_threshold": -0.35,
+    "tune_split_model": {
+      "flagged": 27,
+      "true_positives": 27,
+      "false_positives": 0,
+      "false_negatives": 2,
+      "precision": 1.0,
+      "recall": 0.931,
+      "f1": 0.9643
+    },
+    "holdout_model_tuned_threshold": {
+      "flagged": 37,
+      "true_positives": 37,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "holdout_model_current_threshold": {
+      "flagged": 40,
+      "true_positives": 37,
+      "false_positives": 3,
+      "false_negatives": 0,
+      "precision": 0.925,
+      "recall": 1.0,
+      "f1": 0.961
+    },
+    "holdout_naive_baseline": {
+      "flagged": 38,
+      "true_positives": 34,
+      "false_positives": 4,
+      "false_negatives": 3,
+      "precision": 0.8947,
+      "recall": 0.9189,
+      "f1": 0.9067
+    }
+  }
+}

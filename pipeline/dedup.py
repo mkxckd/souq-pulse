@@ -75,6 +75,18 @@ class UnionFind:
             self.parent[ra] = rb
 
 
+@dataclass(frozen=True)
+class DedupParams:
+    """Thresholds for one dedup run. Defaults are the module constants used by the main pipeline."""
+    text_weight: float = TEXT_WEIGHT
+    price_weight: float = PRICE_WEIGHT
+    size_weight: float = SIZE_WEIGHT
+    match_threshold: float = MATCH_THRESHOLD
+    max_distance_m: float = MAX_DISTANCE_METERS_GATE
+    min_price_sim: float = MIN_PRICE_SIM_GATE
+    min_size_sim: float = MIN_SIZE_SIM_GATE
+
+
 @dataclass
 class DedupResult:
     pairs: list = field(default_factory=list)          # (id_a, id_b, score)
@@ -101,7 +113,8 @@ def _distance_meters(lat1, lon1, lat2, lon2):
     return float(np.hypot(dlat_m, dlon_m))
 
 
-def find_duplicates(df: pd.DataFrame) -> DedupResult:
+def find_duplicates(df: pd.DataFrame, params: DedupParams | None = None) -> DedupResult:
+    p = params or DedupParams()
     df = df.reset_index(drop=True)
     df["_text"] = (df["title"].fillna("") + " " + df["description"].fillna(""))
     blocks = df.groupby([df["area"], df["property_type"], df["bedrooms"]]).groups
@@ -131,21 +144,21 @@ def find_duplicates(df: pd.DataFrame) -> DedupResult:
 
         for i, j in itertools.combinations(range(len(idx)), 2):
             dist_m = _distance_meters(lats[i], lons[i], lats[j], lons[j])
-            if dist_m > MAX_DISTANCE_METERS_GATE:
+            if dist_m > p.max_distance_m:
                 continue
 
             p_sim = _price_similarity(prices[i], prices[j])
-            if p_sim < MIN_PRICE_SIM_GATE:
+            if p_sim < p.min_price_sim:
                 continue
 
             s_sim = _size_similarity(sizes[i], sizes[j])
-            if s_sim < MIN_SIZE_SIM_GATE:
+            if s_sim < p.min_size_sim:
                 continue
 
             t_sim = text_sim[i, j]
-            score = TEXT_WEIGHT * t_sim + PRICE_WEIGHT * p_sim + SIZE_WEIGHT * s_sim
+            score = p.text_weight * t_sim + p.price_weight * p_sim + p.size_weight * s_sim
 
-            if score >= MATCH_THRESHOLD:
+            if score >= p.match_threshold:
                 id_a, id_b = int(listing_ids[i]), int(listing_ids[j])
                 result.pairs.append((id_a, id_b, round(float(score), 4)))
                 uf.union(id_a, id_b)
