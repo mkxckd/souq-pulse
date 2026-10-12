@@ -61,6 +61,24 @@ The dedup thresholds and the fraud threshold above were chosen on the same data 
 
 The headline numbers hold up on areas the thresholds never saw: dedup F1 0.958 held-out vs 0.963 in-sample, and the model still beats the naive fraud rule. The held-out fraud set has only 37 suspicious listings, so the 1.000 says more about the small sample than about a perfect detector. The pipeline keeps its original thresholds so the headline table stays comparable.
 
+## Dashboard
+
+![The rent checker flagging a listing priced 71% below fair value](docs/checker.png)
+
+`frontend/` is a single page with no external libraries (charts and the map are drawn as SVG):
+- **Is this rent fair?** Pick an area, property type, size and furnishing, and enter an asking rent. The page looks up
+  the model's fair value and gives a verdict on a price ruler: fair (within the model's 10% typical error), a good deal,
+  above market, or too cheap to trust (more than 30% under fair value, the same threshold the fraud flag uses).
+  "Load a real flagged listing" fills in one of the scam listings the pipeline caught.
+- **Market map**: rent per square foot by area on a schematic map of Dubai, with each area's ranking and flag count.
+- **Duplicates and fraud**: re-post groups one at a time, the naive rule against the model, the flagged listings,
+  and a replay of the real-time scoring feed.
+- **How it works**: the pipeline stages with their measured numbers, predicted against actual rent, feature importance,
+  the warehouse queries next to their results, and data-quality checks.
+
+`python build_standalone.py` (after `python export_standalone_data.py`) inlines the page and a trimmed copy of the data
+into `frontend/standalone_demo.html` and `docs/index.html` for GitHub Pages.
+
 ## Data engineering
 
 ### Warehouse (`pipeline/etl.py`)
@@ -77,7 +95,7 @@ The whole load runs in one transaction, so a failure leaves the warehouse untouc
 
 ### SQL analytics (`sql/`)
 
-The dashboard's leaderboard reads from these queries, not from pandas. All four appear on the dashboard next to their results.
+The dashboard's market map and area ranking read from these queries, not from pandas. All four appear on the dashboard next to their results.
 
 | Query | What it shows | Techniques |
 |---|---|---|
@@ -88,7 +106,7 @@ The dashboard's leaderboard reads from these queries, not from pandas. All four 
 
 ### Data quality
 
-The pipeline checks field completeness and naive exact-match duplicates, both shown in the dashboard's pipeline-health panel. It also shows how much the fuzzy duplicate detection catches beyond what exact matching finds.
+The pipeline checks field completeness and naive exact-match duplicates, both shown in the dashboard's "How it works" section. It also shows how much the fuzzy duplicate detection catches beyond what exact matching finds.
 
 ### Batch vs. real-time
 
@@ -102,7 +120,7 @@ python -m venv .venv
 pip install -r requirements.txt
 
 python run_pipeline.py            # add --regenerate for a fresh random dataset
-pytest                            # 31 tests (API tests need run_pipeline.py first)
+pytest                            # 34 tests (API tests need run_pipeline.py first)
 python -m pipeline.holdout_eval   # held-out check of the hand-tuned thresholds
 uvicorn api.main:app --reload     # API + dashboard at http://localhost:8000
 ```

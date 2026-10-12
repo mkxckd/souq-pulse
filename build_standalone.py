@@ -16,7 +16,7 @@ FRONTEND = os.path.join(ROOT, "frontend")
 
 
 def extract_body(index_html: str) -> str:
-    match = re.search(r"<body>(.*?)<script src=\"https://cdnjs", index_html, re.DOTALL)
+    match = re.search(r"<body>(.*?)<script src=\"app.js\"></script>", index_html, re.DOTALL)
     if not match:
         raise ValueError("Could not find body content in index.html")
     return match.group(1).strip()
@@ -39,10 +39,10 @@ def main():
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SouqPulse — Fair-Value &amp; Trust Engine</title>
+<title>SouqPulse: is this rent fair?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Public+Sans:wght@400..700&display=swap" rel="stylesheet">
 <style>
 {css}
 </style>
@@ -50,7 +50,6 @@ def main():
 <body>
 {body}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 const EMBEDDED_DATA = {data_json};
 </script>

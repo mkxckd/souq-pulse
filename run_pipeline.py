@@ -91,6 +91,12 @@ def build_fair_value_grid(pipe):
     return grid_df[["area", "property_type", "size_sqft", "furnished", "predicted_price_aed_month"]]
 
 
+def with_area_coords(area_summary: list[dict]) -> list[dict]:
+    """Adds each area's centre point (from the data generator) so the dashboard can draw the market map."""
+    coords = {name: (lat, lon) for name, lat, lon, _ in AREAS}
+    return [row | {"lat": coords[row["area"]][0], "lon": coords[row["area"]][1]} for row in area_summary]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--regenerate", action="store_true")
@@ -155,7 +161,7 @@ def main():
 
     # area leaderboard comes from the warehouse (sql/area_leaderboard.sql),
     # which does its own dedup-collapse and fraud exclusion in SQL
-    area_summary = rows_as_dicts(next(q for q in warehouse_results if q["name"] == "area_leaderboard"))
+    area_summary = with_area_coords(rows_as_dicts(next(q for q in warehouse_results if q["name"] == "area_leaderboard")))
 
     fair_value_grid = build_fair_value_grid(pipe)
 
